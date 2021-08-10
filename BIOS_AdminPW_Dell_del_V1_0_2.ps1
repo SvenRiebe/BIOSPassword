@@ -7,9 +7,6 @@
 # Version: 1.0.2
 # Status: Test
 
-#Variable for change
-$PWKey = "Dell2021"
-
 #Variable not for change
 $PWset = Get-CimInstance -Namespace root\dcim\sysman -ClassName dcim_BIOSPassword -Filter "AttributeName='AdminPwd'" | select -ExpandProperty isSet
 $PWstatus = ""
