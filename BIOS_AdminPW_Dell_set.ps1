@@ -16,16 +16,38 @@
 $PWKey = "Dell2021"
 
 #Variable not for change
+
+# Check if BIOS Admin PW is set
 $PWset = Get-CimInstance -Namespace root\dcim\sysman -ClassName dcim_BIOSPassword -Filter "AttributeName='AdminPwd'" | select -ExpandProperty isSet
+
+# Return code form Dell Command | Monitor for setting Admin PW - Value 0 = OK rest issue is happen
 $PWstatus = ""
+
+# Computername of system
 $DeviceName = Get-CimInstance -ClassName win32_computersystem | select -ExpandProperty Name
+
+# OEM Serial number of device
 $serviceTag = Get-CimInstance -ClassName win32_bios | select -ExpandProperty SerialNumber
+
+# will be used as BIOS Admin PW build from $ServiceTag and $PWKey
 $AdminPw = "$serviceTag$PWKey"
+
+# actual system date
 $Date = Get-Date
+
+# Check if registry path is availible
 $RegKeyexist = Test-Path 'HKLM:\SOFTWARE\Dell\BIOS'
+
+# Value HKLM:\SOFTWARE\Dell\BIOS BIOS use value from registry
 $PWKeyOld = ""
+
+# Value HKLM:\SOFTWARE\Dell\BIOS ServiceTag use value from registry
 $serviceTagOld = ""
+
+# Old Admin PW generate by registry later
 $AdminPwOld = ""
+
+# Path for logging
 $PATH = "C:\Temp\"
 
 #check if c:\temp exist
