@@ -1,14 +1,19 @@
-﻿#########################################
+#########################################
 # Name: Powershell Script for BIOS AdminPW setting on Dell Devices
 #
 # Description: Powershell using Dell Command | Monitor for setting AdminPW on the machine. The script checking if any PW is exist and can setup new and change PW.
 #
 # Author: Sven Riebe Twitter: @SvenRiebe
-# Version: 1.2.1
+# Version: 1.2.2
 # Status: Test
 
+<#
+1.2.2   add check folder c:\temp if not there new-item for $Path
+        log path is now a variable $Path
+#>
+
 #Variable for change
-$PWKey = "Dell2022"
+$PWKey = "Dell2021"
 
 #Variable not for change
 $PWset = Get-CimInstance -Namespace root\dcim\sysman -ClassName dcim_BIOSPassword -Filter "AttributeName='AdminPwd'" | select -ExpandProperty isSet
@@ -21,11 +26,15 @@ $RegKeyexist = Test-Path 'HKLM:\SOFTWARE\Dell\BIOS'
 $PWKeyOld = ""
 $serviceTagOld = ""
 $AdminPwOld = ""
+$PATH = "C:\Temp\"
+
+#check if c:\temp exist
+if (!(Test-Path $PATH)) {New-Item -Path $PATH -ItemType Directory}
 
 #Logging device data
-Write-Output $env:COMPUTERNAME | out-file "c:\temp\BIOS_Profile.txt" -Append
-Write-Output "ServiceTag:         $serviceTag" | out-file "c:\temp\BIOS_Profile.txt" -Append
-Write-Output "Profile install at: $Date" | out-file "c:\temp\BIOS_Profile.txt" -Append
+Write-Output $env:COMPUTERNAME | out-file "$PATH\BIOS_Profile.txt" -Append
+Write-Output "ServiceTag:         $serviceTag" | out-file "$PATH\BIOS_Profile.txt" -Append
+Write-Output "Profile install at: $Date" | out-file "$PATH\BIOS_Profile.txt" -Append
 
 
 #Checking RegistryKey availbility
@@ -35,7 +44,7 @@ if ($RegKeyexist -eq "True")
     $PWKeyOld = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Dell\BIOS\' -Name BIOS | select -ExpandProperty BIOS
     $serviceTagOld = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Dell\BIOS\' -Name ServiceTag | select -ExpandProperty ServiceTag
     $AdminPwOld = "$serviceTagOld$PWKeyOld"
-    Write-Output "RegKey exist"  | out-file "c:\temp\BIOS_Profile.txt" -Append
+    Write-Output "RegKey exist"  | out-file "$PATH\BIOS_Profile.txt" -Append
     }
 Else
     {
@@ -44,7 +53,7 @@ Else
     New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "ServiceTag" -value "" -type string -Force
     New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "Date" -value "" -type string -Force
     New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "Status" -value "" -type string -Force
-    Write-Output "RegKey is set"  | out-file "c:\temp\BIOS_Profile.txt" -Append
+    Write-Output "RegKey is set"  | out-file "$PATH\BIOS_Profile.txt" -Append
     }
 
 #Checking AdminPW is not set on the machine
@@ -62,7 +71,7 @@ If ($PWset -eq $false)
         New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "Date" -value $Date -type string -Force
         New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "Status" -value "Ready" -type string -Force
 
-        Write-Output "Password is set successful for first time"  | out-file "c:\temp\BIOS_Profile.txt" -Append
+        Write-Output "Password is set successful for first time"  | out-file "$PATH\BIOS_Profile.txt" -Append
         }
 
 #Setting of AdminPW was unsuccessful
@@ -70,7 +79,7 @@ If ($PWset -eq $false)
     else
         {
         New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "Status" -value "Error" -type string -Force
-        Write-Output "Error Passwort could not set" | out-file "c:\temp\BIOS_Profile.txt" -Append
+        Write-Output "Error Passwort could not set" | out-file "$PATH\BIOS_Profile.txt" -Append
         }
     }
 
@@ -84,7 +93,7 @@ else
 
     If ($AdminPw -eq $AdminPwOld)
         {
-        Write-Output "Password no change" | out-file "c:\temp\BIOS_Profile.txt" -Append
+        Write-Output "Password no change" | out-file "$PATH\BIOS_Profile.txt" -Append
 
         }
 
@@ -98,7 +107,7 @@ else
 
         If($PWstatus -eq 0)
             {
-            Write-Output "Password is change successful" | out-file "c:\temp\BIOS_Profile.txt" -Append
+            Write-Output "Password is change successful" | out-file "$PATH\BIOS_Profile.txt" -Append
             New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "Status" -value "Ready" -type string -Force
             New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "BIOS" -value $PWKey -type string -Force
             }
@@ -108,7 +117,7 @@ else
         else
             {
             New-Itemproperty -path "hklm:\software\Dell\BIOS" -name "Status" -value "Unknown" -type string -Force
-            Write-Output "Unknown password on machine. This need to delete first" | out-file "c:\temp\BIOS_Profile.txt" -Append
+            Write-Output "Unknown password on machine. This need to delete first" | out-file "$PATH\BIOS_Profile.txt" -Append
             }
         }
     }
