@@ -26,7 +26,7 @@ $PWKey = ""
 $serviceTag = ""
 $AdminPw = ""
 
-
+# this function is from https://stackoverflow.com/questions/5648931/test-if-registry-value-exists
 function Test-RegistryValue {
 
 param (
