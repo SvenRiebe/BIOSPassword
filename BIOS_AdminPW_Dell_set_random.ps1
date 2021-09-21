@@ -30,7 +30,7 @@ $PATH = "C:\Temp\"
 $PWLength = 12
 
 
-
+# This function is from https://gist.github.com/indented-automation/2093bd088d59b362ec2a5b81a14ba84e
 function New-Password {
   
     [CmdletBinding()]
@@ -130,6 +130,7 @@ One of the following special characters (ASCII 0x7b – 0x7e):
     }
 }
 
+# this function is from https://stackoverflow.com/questions/5648931/test-if-registry-value-exists
 function Test-RegistryValue {
 
 param (
