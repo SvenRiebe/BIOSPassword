@@ -13,7 +13,7 @@
 #>
 
 #Variable for change
-$PWKey = "Dell2021"
+$PWKey = "Your Static Key"
 
 #Variable not for change
 
